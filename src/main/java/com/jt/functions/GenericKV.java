@@ -31,7 +31,7 @@ public class GenericKV implements PairFunction <GenericRecord, String, GenericRe
         
         Date date;
         try {
-            date = Utils.simpleDateFormat.parse((String)record.get(StockAnalyticDriver.header.getValue()[0]));
+            date = Utils.parseDate((String)record.get(StockAnalyticDriver.header.getValue()[0]));
         } catch (ParseException e) {
             log.warn("Couldn't parse date format: " + record.get(StockAnalyticDriver.header.getValue()[0]), e);
             throw e;

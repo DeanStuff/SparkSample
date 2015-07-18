@@ -42,9 +42,10 @@ public class FilterOutBadRecords implements Function<String, Boolean> {
         }
         
         try {
-            Utils.simpleDateFormat.parse(values[0]);
-        } catch (ParseException e) {
-            log.warn("Couldn't parse date from record: " + values[0] + "  message: " + e.getMessage());
+            Utils.parseDate(values[0]);
+        } catch (Exception e) {
+//            log.warn("Couldn't parse date from record: " + values[0] + "  message: " + e.getMessage());
+            log.warn("Couldn't parse date from record: " + values[0] );
             return false;  // bad date format
         }
         
