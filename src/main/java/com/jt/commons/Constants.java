@@ -10,4 +10,5 @@ public class Constants {
     public static final String DATE = "Date";
     public static final String CLOSE = "Close";
 
+    public static final String AVG_CLOSE = "Avg Close";
 }

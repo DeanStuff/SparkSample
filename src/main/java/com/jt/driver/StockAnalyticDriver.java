@@ -77,7 +77,7 @@ public class StockAnalyticDriver {
     public static void main(String args[]) throws Exception {
 
         SparkConf conf = new SparkConf().setAppName("StockAnalytic");
-        conf.setIfMissing(Constants.SPARK_MASTER, "local[2]"); // run locally if nothing is set
+        conf.setIfMissing(Constants.SPARK_MASTER, "local[4]"); // run locally if nothing is set
         JavaSparkContext context = new JavaSparkContext(conf);
 
         String inputFilename = null;
