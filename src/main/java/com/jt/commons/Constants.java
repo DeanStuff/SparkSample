@@ -9,6 +9,9 @@ public class Constants {
     
     public static final String DATE = "Date";
     public static final String CLOSE = "Close";
+    public static final String OPEN = "Open";
+    public static final String LOW = "Low";
+    public static final String HIGH = "High";
 
     public static final String AVG_CLOSE = "Avg Close";
 }

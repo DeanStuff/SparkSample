@@ -3,6 +3,7 @@ package com.jt.functions;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 import org.apache.spark.api.java.function.Function;
@@ -25,6 +26,19 @@ public class FilterOutBadRecords implements Function<String, Boolean> {
     private static final Logger log = Logger.getLogger(FilterOutBadRecords.class.getName());
 
     private static final CSVParser csvParser = new CSVParser();
+    
+    private static String[] header = null;
+    
+    
+
+    public FilterOutBadRecords() {
+        super();
+    }
+
+    public FilterOutBadRecords(String[] header) {
+        super();
+        this.header = header;
+    }
 
     @Override
     public Boolean call(String record){
@@ -37,7 +51,8 @@ public class FilterOutBadRecords implements Function<String, Boolean> {
             return false;  // bad data, can't parse
         }
         
-        if (values.length != StockAnalyticDriver.header.value().length) {
+        // check for header or different length records
+        if (Arrays.equals(header, values) || (header.length != values.length)) {
             return false;
         }
         

@@ -20,13 +20,16 @@ import org.apache.spark.streaming.api.java.JavaPairReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.kafka.KafkaUtils;
 
+import scala.Tuple2;
 import au.com.bytecode.opencsv.CSVParser;
 
 import com.jt.commons.Constants;
 import com.jt.commons.GenericRecord;
 import com.jt.functions.ComputeAverage;
+import com.jt.functions.ComputeAverageTuples;
 import com.jt.functions.ComputeAverages;
 import com.jt.functions.FilterOutBadRecords;
+import com.jt.functions.GenericKTupleV;
 import com.jt.functions.GenericKV;
 import com.jt.functions.Transform;
 
@@ -121,7 +124,7 @@ public class StockAnalyticDriver {
         header = context.broadcast(StockAnalyticDriver.getHeader(inputFilename));
 
         // filter out records
-        JavaRDD<String> goodRDD = inputRDD.filter(new FilterOutBadRecords());
+        JavaRDD<String> goodRDD = inputRDD.filter(new FilterOutBadRecords(header.value()));
 
         // convert strings to the application objects
         JavaRDD<GenericRecord> convertedRDD = goodRDD.map(new Transform());
@@ -133,9 +136,16 @@ public class StockAnalyticDriver {
         // the values into an RDD of doubles and take the mean of it. But this example
         // shows how something can be done in the reduce phase.
         JavaPairRDD<String, GenericRecord> yearlyAverages = yearlyRDD.reduceByKey(new ComputeAverage());
+        
+        // try again but use the mapper with kv in a tuple
+        JavaPairRDD<String, Tuple2<String, GenericRecord>> yearlyRDD2 = convertedRDD.mapToPair(new GenericKTupleV());
+        JavaPairRDD<String, Tuple2<String, GenericRecord>> averagesTuple = yearlyRDD2.reduceByKey(new ComputeAverageTuples());
+        averagesTuple.saveAsTextFile(outputPath+"/tupelsWithAverages");
 
+        yearlyAverages.saveAsTextFile(outputPath + "/unsorted");
         // write the part files out
-        yearlyAverages.saveAsTextFile(outputPath);
+        JavaPairRDD<String, GenericRecord> sortedAverages = yearlyAverages.sortByKey();
+        sortedAverages.saveAsTextFile(outputPath + "/sorted");
 
         // ok, so lets mess with the ability to calculate the mean without the reducer. But instead
         // use the more efficient internals of spark.
